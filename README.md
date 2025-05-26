@@ -70,10 +70,6 @@ When you run the application, it will:
 2. Ask you to authorize the application
 3. Prompt you to enter track information:
    ```
-   📝 Enter the song name: Shape of You - Ed Sheeran
-   ```
-   or
-   ```
    📝 Enter the song name: Shape of You
    📝 Enter the artist name: Ed Sheeran
    ```
