@@ -4,8 +4,7 @@
 
 # 🎵 Scrobblez - Last.fm Scrobbling CLI
 
-This is a **TypeScript CLI application** that allows you to quickly and efficiently scrobble tracks to Last.fm.  
-Made with ❤️, TypeScript, and a passion for music tracking.
+This is a **TypeScript CLI application** that allows you to quickly and efficiently scrobble tracks to Last.fm.
 
 ---
 
