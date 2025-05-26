@@ -1,0 +1,22 @@
+{
+  "name": "scrobblez",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.15.20",
+    "@types/node-fetch": "^2.6.12",
+    "@types/open": "^6.1.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2",
+    "open": "^10.1.2"
+  }
+}
