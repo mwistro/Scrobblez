@@ -94,10 +94,7 @@ When you run the application, it will:
 ## 📝 Notes
 
 This project was built as a way to practice TypeScript and interact with the Last.fm API.  
-There may still be bugs or things to improve — but it was built with care and a passion for music tracking.
-
-Feel free to use it, suggest improvements, or open a pull request!  
-Let's make music tracking better together 🎵💻
+There may still be bugs or things to improve, so, feel free to use it, suggest improvements, or even open a pull request!.
 
 ---
 
