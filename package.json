@@ -1,22 +1,33 @@
 {
   "name": "scrobblez",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A TypeScript CLI exploring Last.fm authentication, signed API requests and batched scrobbling.",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "start": "node dist/main.js",
+    "demo": "npm run build && node dist/main.js --demo",
+    "test": "npm run build && node --test tests/*.test.mjs"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Mateus Maistro",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.15.20",
-    "@types/node-fetch": "^2.6.12",
-    "@types/open": "^6.1.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
     "node-fetch": "^3.3.2",
     "open": "^10.1.2"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mwistro/Scrobblez.git"
   }
 }

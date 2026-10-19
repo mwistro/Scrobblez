@@ -1,17 +1,20 @@
-import crypto from 'crypto';
-import fetch from 'node-fetch';
+import realFetch from 'node-fetch';
 import open from 'open';
 import readline from 'readline';
 import dotenv from 'dotenv';
-import {
+import type {
   GetSessionResponse,
   GetTokenResponse,
   ScrobbleResponse,
   ErrorResponse,
-} from './types';
+} from './types.js';
+import { signParams, readScrobbleCounts } from './protocol.js';
+import { demoRequest, demoAnswer } from './demo.js';
 
 // Load environment variables
-dotenv.config();
+const isDemo = process.argv.includes('--demo');
+const fetch = isDemo ? demoRequest : realFetch;
+if (!isDemo) dotenv.config();
 
 // Load interfaces
 type LastFmResponse =
@@ -21,10 +24,8 @@ type LastFmResponse =
   | ErrorResponse;
 
 // Get API credentials from .env
-const apiKey = process.env.LASTFM_API_KEY!;
-const shared_secret = process.env.LASTFM_SHARED_SECRET!;
-console.log('APIKEY ', apiKey)
-console.log('SHARED ', shared_secret)
+const apiKey = isDemo ? 'demo-api-key' : process.env.LASTFM_API_KEY!;
+const shared_secret = isDemo ? 'demo-secret' : process.env.LASTFM_SHARED_SECRET!;
 
 // Check if environment variables are set
 if (!apiKey || !shared_secret) {
@@ -50,26 +51,12 @@ function askQuestion(
   rl: readline.Interface,
   question: string
 ): Promise<string> {
+  if (isDemo) return demoAnswer(question);
   return new Promise((resolve) => {
     rl.question(question, (answer) => {
       resolve(answer);
     });
   });
-}
-
-// Function to build the api_sign
-function signParams(params: Record<string, string>, secret: string): string {
-  const paramsToSign = { ...params };
-  delete paramsToSign.format;
-
-  const sortedKeys = Object.keys(paramsToSign).sort();
-  const baseString =
-    sortedKeys.map((key) => `${key}${paramsToSign[key]}`).join('') + secret;
-  const hashedString = crypto
-    .createHash('md5')
-    .update(baseString)
-    .digest('hex');
-  return hashedString;
 }
 
 // Function to check errors
@@ -145,10 +132,6 @@ async function getSession(
     }
 
     if (!data.session || !data.session.key) {
-      console.error(
-        'API response (getSession):',
-        JSON.stringify(data, null, 2)
-      );
       throw new Error(
         'Session key not found in API response. Please make sure you authorized the app in the browser.'
       );
@@ -175,6 +158,8 @@ async function scrobbleTracks(
 ) {
   const batchSize = 50;
   let completedScrobbles = 0;
+  let acceptedScrobbles = 0;
+  let ignoredScrobbles = 0;
 
   console.log(`\n🎵 Starting scrobble of "${track}" by "${artist}"`);
   console.log(`📊 Total scrobbles to perform: ${totalScrobbles}\n`);
@@ -219,22 +204,24 @@ async function scrobbleTracks(
         );
       }
 
+      const counts = readScrobbleCounts(data, currentBatchSize);
+      acceptedScrobbles += counts.accepted;
+      ignoredScrobbles += counts.ignored;
       completedScrobbles += currentBatchSize;
 
       const progressPercent = Math.floor(
         (completedScrobbles / totalScrobbles) * 100
       );
       console.log(
-        `🎧 Progress: ${completedScrobbles}/${totalScrobbles} scrobbles (${progressPercent}%)`
+        `🎧 Progress: ${completedScrobbles}/${totalScrobbles} processed (${progressPercent}%) | accepted: ${acceptedScrobbles}, ignored: ${ignoredScrobbles}`
       );
     } catch (error) {
-      console.error(`❌ An error ocurred while scrobbling: ${error}`);
+      throw new Error(`Batch stopped after ${completedScrobbles} confirmed responses (${acceptedScrobbles} accepted, ${ignoredScrobbles} ignored). Check your Last.fm history before retrying. ${error}`);
     }
   }
 
-  console.log(
-    `\n✅ Scrobble completed successfully! ${totalScrobbles} scrobbles of "${track}" by "${artist}" have been logged.`
-  );
+  console.log(`\nCompleted: ${acceptedScrobbles} accepted, ${ignoredScrobbles} ignored.`);
+  if (ignoredScrobbles > 0) process.exitCode = 1;
 }
 
 // Main func
@@ -243,20 +230,18 @@ async function main() {
   let continueScrobbling = true;
 
   try {
-    console.log('🔑Starting the authentication process...');
+    if (isDemo) console.log('SCROBBLEZ / OFFLINE DEMO\nSimulated responses. No network requests, browser or account changes.\n');
+    console.log('🔑 Starting the authentication process...');
     const token = await getRequestToken(apiKey, shared_secret);
 
-    const authUrlLink = `http://www.last.fm/api/auth/?api_key=${apiKey}&token=${token}`;
-    console.log(
-      '🔗Open this URL in your browser and authorize the app:\n',
-      authUrlLink
-    );
-    await open(authUrlLink);
-
-    console.log('\n⏳ Waiting for authorization...');
-    console.log(
-      'Please authorize the application in the browser that was opened.'
-    );
+    const authUrlLink = `https://www.last.fm/api/auth/?api_key=${apiKey}&token=${token}`;
+    if (isDemo) {
+      console.log('Browser authorization simulated for this demo.');
+    } else {
+      console.log('Open this URL in your browser and authorize the app:\n', authUrlLink);
+      await open(authUrlLink);
+      console.log('Please authorize the application in the browser that was opened.');
+    }
 
     await askQuestion(
       rl,
@@ -271,24 +256,24 @@ async function main() {
 
       let track, artist;
 
-      if (musicInfo.includes(' - ')) {
-        [track, artist] = musicInfo.split(' - ').map((s) => s.trim());
-      } else if (musicInfo.includes('-')) {
-        [track, artist] = musicInfo.split('-').map((s) => s.trim());
+      const separator = musicInfo.indexOf(' - ');
+      if (separator >= 0) {
+        track = musicInfo.slice(0, separator).trim();
+        artist = musicInfo.slice(separator + 3).trim();
       } else {
-        track = musicInfo;
-        artist = await askQuestion(rl, '📝 Enter the artist name: ');
+        track = musicInfo.trim();
+        artist = (await askQuestion(rl, 'Artist name: ')).trim();
+      }
+      if (!track || !artist) {
+        console.log('Both track and artist are required. Please try again.');
+        continue;
       }
 
-      const scrobblesInput = await askQuestion(
-        rl,
-        '📊 How many scrobbles would you like? (Recommended daily maximum: 2000):'
-      );
-      let totalScrobbles = parseInt(scrobblesInput, 10) || 1;
-
-      if (isNaN(totalScrobbles) || totalScrobbles <= 0) {
-        console.log('❌ Invalid number. Using 1 as default.');
-        totalScrobbles = 1;
+      const scrobblesInput = (await askQuestion(rl, 'Number of scrobbles: ')).trim();
+      const totalScrobbles = Number(scrobblesInput);
+      if (!/^\d+$/.test(scrobblesInput) || !Number.isSafeInteger(totalScrobbles) || totalScrobbles <= 0) {
+        console.log('Enter a positive whole number. No scrobbles were sent.');
+        continue;
       }
 
       await scrobbleTracks(
@@ -311,6 +296,7 @@ async function main() {
 
     console.log('\n👋 Thank you for using Scrobblez! See you next time!');
   } catch (error) {
+    process.exitCode = 1;
     console.error(`\n❌ An error occurred: ${error}`);
     console.log(
       '\n💡 If the error is related to authentication, try running the program again and make sure to authorize the app in your browser before pressing enter.'

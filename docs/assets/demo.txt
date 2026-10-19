@@ -1,0 +1,25 @@
+SCROBBLEZ / OFFLINE DEMO
+Simulated responses. No network requests, browser or account changes.
+
+🔑 Starting the authentication process...
+Browser authorization simulated for this demo.
+
+⚠️  After authorizing in the browser, press ENTER to continue:
+
+🔄 Getting the session key...
+✅ Authentication successful!
+
+📝 Enter the song name: Midnight City - M83
+Number of scrobbles: 55
+
+🎵 Starting scrobble of "Midnight City" by "M83"
+📊 Total scrobbles to perform: 55
+
+🎧 Progress: 50/55 processed (90%) | accepted: 50, ignored: 0
+🎧 Progress: 55/55 processed (100%) | accepted: 55, ignored: 0
+
+Completed: 55 accepted, 0 ignored.
+
+🔄 Would you like to scrobble more? (y/n): n
+
+👋 Thank you for using Scrobblez! See you next time!

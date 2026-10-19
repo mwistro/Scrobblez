@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Scrobblez offline demo</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:50px;background:#1c0e12;color:#ebecf0;font-family:Segoe UI,sans-serif}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+    .eyebrow{color:#ff7585;letter-spacing:3px;font-size:13px;font-weight:700;margin-bottom:8px}
+    h1{font-size:38px;font-weight:650;margin:0;letter-spacing:-1px}.tag{border:1px solid #71323e;border-radius:30px;padding:10px 16px;color:#ffc0c9;font-size:13px}
+    .terminal{background:#101116;border:1px solid #423039;border-radius:14px;overflow:hidden;box-shadow:0 22px 70px #0005}
+    .bar{height:50px;background:#1c1d25;border-bottom:1px solid #34303a;display:flex;align-items:center;padding:0 22px;gap:9px}
+    i{height:10px;width:10px;border-radius:50%;background:#fa6470}i:nth-child(2){background:#f0bd5b}i:nth-child(3){background:#67c38e}
+    .caption{font-size:13px;color:#a8a4b5;margin-left:20px}pre{padding:26px 30px 30px;margin:0;font:17px/1.52 Consolas,'Courier New',monospace;white-space:pre-wrap}
+    .command{color:#f6adba}.success{color:#8cdbb0}.accent{color:#ffe0e5}.muted{color:#aaa5b7}
+    footer{display:flex;justify-content:space-between;color:#bba8ae;font-size:13px;margin-top:22px}
+  </style><header><div><div class="eyebrow">SCROBBLEZ / CLI WALKTHROUGH</div><h1>From authentication to batch results.</h1></div><div class="tag">OFFLINE DEMO</div></header>
+  <main class="terminal"><div class="bar"><i></i><i></i><i></i><span class="caption">scrobblez &mdash; Node.js + TypeScript</span></div><pre><span class="command">$ node dist/main.js --demo</span>
+
+<span class="accent">SCROBBLEZ / OFFLINE DEMO</span>
+<span class="muted">Simulated responses. No network requests, browser or account changes.</span>
+<span class=""> </span>
+<span class="">🔑 Starting the authentication process...</span>
+<span class="muted">Browser authorization simulated for this demo.</span>
+<span class=""> </span>
+<span class="">⚠️  After authorizing in the browser, press ENTER to continue:</span>
+<span class=""> </span>
+<span class="">🔄 Getting the session key...</span>
+<span class="success">✅ Authentication successful!</span>
+<span class=""> </span>
+<span class="accent">📝 Enter the song name: Midnight City - M83</span>
+<span class="">Number of scrobbles: 55</span>
+<span class=""> </span>
+<span class="accent">🎵 Starting scrobble of "Midnight City" by "M83"</span>
+<span class="">📊 Total scrobbles to perform: 55</span>
+<span class=""> </span>
+<span class="success">🎧 Progress: 50/55 processed (90%) | accepted: 50, ignored: 0</span>
+<span class="success">🎧 Progress: 55/55 processed (100%) | accepted: 55, ignored: 0</span>
+<span class=""> </span>
+<span class="success">Completed: 55 accepted, 0 ignored.</span>
+<span class=""> </span>
+<span class="">🔄 Would you like to scrobble more? (y/n): n</span>
+<span class=""> </span>
+<span class="">👋 Thank you for using Scrobblez! See you next time!</span></pre></main>
+  <footer><span>Real CLI output &middot; simulated Last.fm responses</span><span>No credentials. No account changes.</span></footer></html>

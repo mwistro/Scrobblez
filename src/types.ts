@@ -13,10 +13,10 @@ export interface GetSessionResponse {
 export interface ScrobbleResponse {
   scrobbles: {
     '@attr': {
-      accepted: number;
-      ignored: number;
+      accepted: number | string;
+      ignored: number | string;
     };
-    scrobble: any[];
+    scrobble: unknown;
   };
   error?: number;
   message?: string;
